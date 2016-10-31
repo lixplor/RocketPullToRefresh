@@ -122,9 +122,12 @@ public class RocketFrameLayout extends FrameLayout {
     public void drawBounce(float touchX, float percent) {
         float bouncePartWithTolerance = mBouncePartPercent + mBouncePartTolerance;
         if (percent >= bouncePartWithTolerance) {
+            if(percent > 1f){
+                percent = 1f;
+            }
             float bouncePercent = (percent - bouncePartWithTolerance) / (1f - bouncePartWithTolerance);
             mControlX = touchX;
-            mControlY = (mRectY + (mBouncePartHeight * bouncePercent)) * 1.0f;
+            mControlY = (mRectY + (mBouncePartHeight * bouncePercent));
 
             mIndicatorLeft = touchX - mIndicatorBitmap.getWidth() / 2f;
             mIndicatorTop = mRectY - mIndicatorBitmap.getHeight() - mIndicatorBottomMargin + (mBouncePartHeight * bouncePercent / 2f);
