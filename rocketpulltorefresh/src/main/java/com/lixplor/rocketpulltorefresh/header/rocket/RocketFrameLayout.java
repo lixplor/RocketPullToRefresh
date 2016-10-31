@@ -42,7 +42,7 @@ public class RocketFrameLayout extends FrameLayout {
 
     private Context mContext;
 
-    private int mPaintColor = Color.parseColor("#314D7A");
+    private int mPaintColor = Color.parseColor("#6F7494");
     private float mBouncePartPercent = 0.4f;
     private int mIndicatorBottomMargin = dp2px(12);
     private Bitmap mIndicatorBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.vc_rocket);

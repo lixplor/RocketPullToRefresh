@@ -11,8 +11,8 @@
         android:id="@+id/tl_tab"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@color/blue_night"
-        app:tabSelectedTextColor="@color/white"
+        android:background="@color/green_super_weak"
+        app:tabSelectedTextColor="@color/blue_night"
         app:tabMode="scrollable"/>
 
     <android.support.v4.view.ViewPager

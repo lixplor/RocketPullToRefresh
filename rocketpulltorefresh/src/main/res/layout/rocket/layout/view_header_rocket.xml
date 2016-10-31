@@ -4,17 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="50dp"
-    android:background="@drawable/vc_moon"
+    android:background="#fff"
     android:id="@+id/rfl_header"
     android:orientation="vertical">
-
-    <ImageView
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_gravity="right|top"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="50dp"
-        android:src="@drawable/shp_sun"/>
 
     <TextView
         android:id="@+id/tv_tip"
