@@ -43,8 +43,15 @@ public class RocketFrameLayout extends FrameLayout {
     private Context mContext;
 
     private int mPaintColor = Color.parseColor("#6F7494");
+    /**
+     * percent of whole header where elastic bounce part will be
+     */
     private float mBouncePartPercent = 0.4f;
-    private int mIndicatorBottomMargin = dp2px(12);
+    /**
+     * percent of whole header that keep divider still straight
+     */
+    private float mBouncePartTolerance = 0.3f;
+    private int mIndicatorBottomMargin = dp2px(4);
     private Bitmap mIndicatorBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.vc_rocket);
     private float mIndicatorTop;
     private float mIndicatorLeft;
@@ -113,8 +120,9 @@ public class RocketFrameLayout extends FrameLayout {
     }
 
     public void drawBounce(float touchX, float percent) {
-        if (percent >= mBouncePartPercent) {
-            float bouncePercent = (percent - mBouncePartPercent) / (1f - mBouncePartPercent);
+        float bouncePartWithTolerance = mBouncePartPercent + mBouncePartTolerance;
+        if (percent >= bouncePartWithTolerance) {
+            float bouncePercent = (percent - bouncePartWithTolerance) / (1f - bouncePartWithTolerance);
             mControlX = touchX;
             mControlY = (mRectY + (mBouncePartHeight * bouncePercent)) * 1.0f;
 
