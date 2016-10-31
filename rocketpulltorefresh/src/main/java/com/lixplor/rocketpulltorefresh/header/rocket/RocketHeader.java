@@ -59,16 +59,19 @@ public class RocketHeader extends AbsHeader implements RefreshLayout.OnPullListe
     @Override
     public void changeToPullDown() {
         mTvTip.setText(mTipPullDown);
+        mRocketFrameLayout.stopRocketShake();
     }
 
     @Override
     public void changeToRelease() {
         mTvTip.setText(mTipRelease);
+        mRocketFrameLayout.playRocketShake();
     }
 
     @Override
     public void changeToRefreshing() {
         mTvTip.setText(mTipRefreshing);
+        mRocketFrameLayout.stopRocketShake();
         mRocketFrameLayout.playBounceBack();
     }
 

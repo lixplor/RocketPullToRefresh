@@ -28,6 +28,7 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 
 import com.lixplor.rocketpulltorefresh.R;
@@ -51,7 +52,8 @@ public class RocketFrameLayout extends FrameLayout {
      * percent of whole header that keep divider still straight
      */
     private float mBouncePartTolerance = 0.3f;
-    private int mIndicatorBottomMargin = dp2px(4);
+    private int mIndicatorBottomMargin = dp2px(2);
+    private int mShakeDistance = dp2px(4);
     private Bitmap mIndicatorBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.vc_rocket);
     private float mIndicatorTop;
     private float mIndicatorLeft;
@@ -66,6 +68,7 @@ public class RocketFrameLayout extends FrameLayout {
     private boolean shouldStopBounceAnim = false;
 
     private ValueAnimator mControlYAnim;
+    private ValueAnimator mRocketShakeAnim;
     private ValueAnimator mIndicatorYAnim;
     private Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Path mBezierPath = new Path();
@@ -133,6 +136,33 @@ public class RocketFrameLayout extends FrameLayout {
             mIndicatorTop = mRectY - mIndicatorBitmap.getHeight() - mIndicatorBottomMargin + (mBouncePartHeight * bouncePercent / 2f);
 
             invalidate();
+        }
+    }
+
+    public void playRocketShake(){
+        if(mRocketShakeAnim == null){
+            mRocketShakeAnim = new ValueAnimator();
+            mRocketShakeAnim.setDuration(30);
+            mRocketShakeAnim.setRepeatCount(ValueAnimator.INFINITE);
+            mRocketShakeAnim.setRepeatMode(ValueAnimator.REVERSE);
+            mRocketShakeAnim.setInterpolator(new LinearInterpolator());
+            mRocketShakeAnim.setTarget(this);
+            mRocketShakeAnim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    float rocketCenter = mControlX - mIndicatorBitmap.getWidth() / 2f;
+                    mIndicatorLeft = rocketCenter + (float) animation.getAnimatedValue();
+                    invalidate();
+                }
+            });
+        }
+        mRocketShakeAnim.setFloatValues(-mShakeDistance, mShakeDistance);
+        mRocketShakeAnim.start();
+    }
+
+    public void stopRocketShake(){
+        if(mRocketShakeAnim != null){
+            mRocketShakeAnim.cancel();
         }
     }
 
