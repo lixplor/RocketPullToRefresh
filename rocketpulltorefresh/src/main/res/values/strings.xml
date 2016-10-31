@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">RocketPullToRefresh</string>
+
+    <!-- plain -->
+    <string name="tip_header_plain_pull_down">"下拉刷新"</string>
+    <string name="tip_header_plain_release">"释放立即刷新"</string>
+    <string name="tip_header_plain_refreshing">"正在刷新..."</string>
+    <string name="tip_header_plain_finish">"刷新完成"</string>
+
+    <string name="tip_footer_plain_pull_up">"上拉加载更多"</string>
+    <string name="tip_footer_plain_release">"释放立即加载更多"</string>
+    <string name="tip_footer_plain_loading">"正在加载..."</string>
+    <string name="tip_footer_plain_finish">"加载完成"</string>
+
+    <!-- rocket -->
+    <string name="tip_header_rocket_pull_down">"下拉准备发射"</string>
+    <string name="tip_header_rocket_release">"松手发射"</string>
+    <string name="tip_header_rocket_refreshing">"升空中"</string>
+    <string name="tip_header_rocket_finish">"成功登月"</string>
+
+</resources>

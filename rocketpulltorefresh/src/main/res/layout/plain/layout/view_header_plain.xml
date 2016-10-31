@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+              android:orientation="horizontal"
+              android:paddingTop="20dp"
+              android:paddingBottom="20dp"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+    <FrameLayout
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="30dp">
+
+        <ProgressBar
+            android:id="@+id/pb_spinner"
+            android:indeterminateDrawable="@drawable/anim_spinner_rotate"
+            android:indeterminate="true"
+            android:indeterminateDuration="1000"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:id="@+id/iv_indicator"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/vc_arrow_down"
+            android:visibility="visible"/>
+
+    </FrameLayout>
+
+
+    <TextView
+        android:id="@+id/tv_tip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        style="@style/text_dark"
+        tools:text="@string/tip_header_plain_pull_down"/>
+
+</RelativeLayout>

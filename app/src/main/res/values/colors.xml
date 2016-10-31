@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">@color/blue_night</color>
+    <color name="colorPrimaryDark">@color/blue_night</color>
+    <color name="colorAccent">@color/white</color>
+
+
+    <color name="white">#FFFFFF</color>
+    <color name="gray_super_weak">#F0F0F0</color>
+    <color name="gray_weak">#999999</color>
+    <color name="gray_normal">#666666</color>
+    <color name="gray_strong">#333333</color>
+    <color name="blue_night">#314D7A</color>
+</resources>

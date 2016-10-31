@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.lixplor.rocketpulltorefresh.RefreshLayout
+        android:id="@+id/refl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white">
+
+            <LinearLayout
+                android:id="@+id/ll_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:layout_margin="@dimen/distance_12dp"
+                    android:background="@drawable/shp_block_gray"
+                    android:gravity="center"
+                    android:text="TextView"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:background="@drawable/shp_block_gray"
+                    android:layout_margin="@dimen/distance_12dp"
+                    android:gravity="center"
+                    android:text="TextView"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:background="@drawable/shp_block_gray"
+                    android:layout_margin="@dimen/distance_12dp"
+                    android:gravity="center"
+                    android:text="TextView"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:background="@drawable/shp_block_gray"
+                    android:layout_margin="@dimen/distance_12dp"
+                    android:gravity="center"
+                    android:text="TextView"/>
+
+            </LinearLayout>
+        </ScrollView>
+
+    </com.lixplor.rocketpulltorefresh.RefreshLayout>
+</RelativeLayout>

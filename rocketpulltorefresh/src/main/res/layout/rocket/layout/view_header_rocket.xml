@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.lixplor.rocketpulltorefresh.header.rocket.RocketFrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:background="@drawable/vc_moon"
+    android:id="@+id/rfl_header"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="right|top"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="50dp"
+        android:src="@drawable/shp_sun"/>
+
+    <TextView
+        android:id="@+id/tv_tip"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:gravity="center_horizontal|bottom"
+        android:paddingBottom="8dp"
+        style="@style/text_light"
+        tools:text="@string/tip_header_rocket_pull_down"/>
+
+</com.lixplor.rocketpulltorefresh.header.rocket.RocketFrameLayout>
