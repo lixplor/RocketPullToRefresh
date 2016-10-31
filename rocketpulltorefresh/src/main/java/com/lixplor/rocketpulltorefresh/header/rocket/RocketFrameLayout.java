@@ -206,6 +206,7 @@ public class RocketFrameLayout extends FrameLayout {
         if(mStarAlphaAnim == null){
             mStarAlphaAnim = new ValueAnimator();
             mStarAlphaAnim.setDuration(500);
+            mStarAlphaAnim.setStartDelay(200); // should be same or longer than rocket anim duration
             mStarAlphaAnim.setRepeatCount(ValueAnimator.INFINITE);
             mStarAlphaAnim.setRepeatMode(ValueAnimator.REVERSE);
             mStarAlphaAnim.setTarget(this);
