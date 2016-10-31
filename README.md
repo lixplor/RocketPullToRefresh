@@ -28,6 +28,11 @@ Android Pull-to-refresh widget with rocket launching header!
 * [ ] rocket header height should not be fixed
 
 
+### Thanks
+
+Inspired by [GIF for Pull Down — Space Ship](https://dribbble.com/shots/2101933-GIF-for-Pull-Down-Space-Ship)
+
+
 ### License
 
 Apache 2.0
