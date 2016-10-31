@@ -78,6 +78,7 @@ public class RocketHeader extends AbsHeader implements RefreshLayout.OnPullListe
     @Override
     public void changeToFinish() {
         mTvTip.setText(mTipFinish);
+        mRocketFrameLayout.stopBounceBackAnim();
     }
 
     @Override

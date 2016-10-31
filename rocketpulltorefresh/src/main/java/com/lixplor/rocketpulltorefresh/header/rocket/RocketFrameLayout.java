@@ -55,8 +55,12 @@ public class RocketFrameLayout extends FrameLayout {
     private int mIndicatorBottomMargin = dp2px(2);
     private int mShakeDistance = dp2px(4);
     private Bitmap mIndicatorBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.vc_rocket);
+    private Bitmap mStarBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.vc_stars);
     private float mIndicatorTop;
     private float mIndicatorLeft;
+    private float mStarTop;
+    private float mStarLeft;
+    private float mStarAlpha;
     private int mIndicatorWidth;
     private int mIndicatorHeight;
     private int mViewWidth;
@@ -70,7 +74,9 @@ public class RocketFrameLayout extends FrameLayout {
     private ValueAnimator mControlYAnim;
     private ValueAnimator mRocketShakeAnim;
     private ValueAnimator mIndicatorYAnim;
+    private ValueAnimator mStarAlphaAnim;
     private Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private Paint mStarPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Path mBezierPath = new Path();
 
     public RocketFrameLayout(Context context) {
@@ -98,6 +104,8 @@ public class RocketFrameLayout extends FrameLayout {
         mControlY = mRectY;
         mIndicatorLeft = (mViewWidth - mIndicatorBitmap.getWidth()) / 2f;
         mIndicatorTop = mRectY - mIndicatorBottomMargin - mIndicatorBitmap.getHeight();
+        mStarLeft = (mViewWidth - mStarBitmap.getWidth()) / 2f;
+        mStarTop = (mRectY - mStarBitmap.getHeight()) / 2f;
         initPaint();
     }
 
@@ -105,6 +113,8 @@ public class RocketFrameLayout extends FrameLayout {
     protected void onDraw(Canvas canvas) {
         canvas.drawPath(createPath(mControlX, mControlY), mPaint);
         canvas.drawBitmap(mIndicatorBitmap, mIndicatorLeft, mIndicatorTop, mPaint);
+        mStarPaint.setAlpha((int) (mStarAlpha * 255));
+        canvas.drawBitmap(mStarBitmap, mStarLeft, mStarTop, mStarPaint);
     }
 
     private void initPaint() {
@@ -193,10 +203,33 @@ public class RocketFrameLayout extends FrameLayout {
                 }
             });
         }
+        if(mStarAlphaAnim == null){
+            mStarAlphaAnim = new ValueAnimator();
+            mStarAlphaAnim.setDuration(500);
+            mStarAlphaAnim.setRepeatCount(ValueAnimator.INFINITE);
+            mStarAlphaAnim.setRepeatMode(ValueAnimator.REVERSE);
+            mStarAlphaAnim.setTarget(this);
+            mStarAlphaAnim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    mStarAlpha = (float) animation.getAnimatedValue();
+                    invalidate();
+                }
+            });
+        }
         mControlYAnim.setIntValues((int) mControlY, (int) mRectY);
         mIndicatorYAnim.setIntValues((int) mIndicatorTop, (int) -mIndicatorBitmap.getHeight() * 2);
+        mStarAlphaAnim.setFloatValues(0.2f, 1f);
         mControlYAnim.start();
         mIndicatorYAnim.start();
+        mStarAlphaAnim.start();
+    }
+
+    public void stopBounceBackAnim(){
+        mControlYAnim.cancel();
+        mIndicatorYAnim.cancel();
+        mStarAlphaAnim.cancel();
+        mStarAlpha = 0;
     }
 
     private int dp2px(int dp) {
