@@ -227,9 +227,15 @@ public class RocketFrameLayout extends FrameLayout {
     }
 
     public void stopBounceBackAnim(){
-        mControlYAnim.cancel();
-        mIndicatorYAnim.cancel();
-        mStarAlphaAnim.cancel();
+        if(mControlYAnim != null){
+            mControlYAnim.cancel();
+        }
+        if(mIndicatorYAnim != null){
+            mIndicatorYAnim.cancel();
+        }
+        if(mStarAlphaAnim != null){
+            mStarAlphaAnim.cancel();
+        }
         mStarAlpha = 0;
     }
 
