@@ -53,7 +53,7 @@ public class RocketFrameLayout extends FrameLayout {
      */
     private float mBouncePartTolerance = 0.0f; // temporarily set to 0 as the rocket drawing has bug
     private int mIndicatorBottomMargin = dp2px(2);
-    private int mShakeDistance = dp2px(4);
+    private int mShakeDistance = dp2px(3);
     private Bitmap mIndicatorBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.vc_rocket);
     private Bitmap mStarBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.vc_stars);
     private float mIndicatorTop;
