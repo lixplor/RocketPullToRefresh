@@ -14,10 +14,10 @@ Android Pull-to-refresh widget with rocket launching header!
 
 ### Todo
 
-* [ ] pull resistor config
-* [ ] pull distance limitaion config
-* [ ] pull down/up enable/disable config
-* [ ] bounce back duration config
+* [x] pull resistor config
+* [x] pull distance limitaion config
+* [x] pull down/up enable/disable config
+* [x] bounce back duration config
 * [ ] custom interpolator config
 * [ ] horizontal refresh and load
 
