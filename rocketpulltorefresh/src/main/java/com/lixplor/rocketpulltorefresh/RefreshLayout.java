@@ -120,7 +120,7 @@ public class RefreshLayout extends LinearLayout {
 
     // configs
     /**
-     * Pulling resistor. 1f means same speed as touch movement; <1f means slower; >1f means faster
+     * Pulling resistor. 1f means same speed as touch movement; less than 1f means slower; more than 1f means faster
      */
     private float mPullResistor = 0.7f;
     /**
@@ -130,7 +130,7 @@ public class RefreshLayout extends LinearLayout {
     /**
      * Whether to enable pull down to refresh
      */
-    private boolean mEnableRefresh = true;
+    private boolean mEnableRefresh = false;
     /**
      * Whether to enable pull up to load more
      */
@@ -296,11 +296,11 @@ public class RefreshLayout extends LinearLayout {
                 mInterceptMoveY = ev.getRawY();
                 mLastTouchRawY = mInterceptMoveY;
                 if (Math.abs(mInterceptMoveY - mInterceptDownY) > mTouchSlop) {
-                    if (mInterceptMoveY - mInterceptDownY > 0) {
+                    if (mEnableRefresh && mInterceptMoveY - mInterceptDownY > 0) {
                         // pull down, evaluate if content view is at top
                         shouldIntercept = !ViewCompat.canScrollVertically(contentView, -1);
                         return shouldIntercept;
-                    } else {
+                    } else if(mEnableLoadMore && mInterceptMoveY - mInterceptDownY < 0) {
                         // pull up, evaluate if content view is at bottom
                         shouldIntercept = !ViewCompat.canScrollVertically(contentView, 1);
                         return shouldIntercept;
@@ -369,10 +369,11 @@ public class RefreshLayout extends LinearLayout {
     }
 
     /**
-     * Set custom header view
+     * Set custom header view. This will also enable pull down to refresh
      * @param header class that extends from AbsHeader
      */
     public void setHeaderView(AbsHeader header) {
+        setEnableRefresh(true);
         mAbsHeader = header;
         if (mAbsHeader instanceof OnPullListener) {
             mOnPullListener = (OnPullListener) mAbsHeader;
@@ -382,13 +383,53 @@ public class RefreshLayout extends LinearLayout {
     }
 
     /**
-     * Set custom footer view
+     * Set custom footer view. This will also enable pull up to load more
      * @param footer class that extends from AbsFooter
      */
     public void setFooterView(AbsFooter footer) {
+        setEnableLoadMore(true);
         mAbsFooter = footer;
         mFooterView = mAbsFooter.getFooter();
         initFooterContainer();
+    }
+
+    /**
+     * Set pulling resistor
+     * @param resistor 1f means same speed as touch movement; less than 1f means slower; more than 1f means faster
+     */
+    public void setPullResistor(float resistor){
+        if(resistor > 0f && resistor <= 2f){
+            mPullResistor = resistor;
+        }
+    }
+
+    /**
+     * Set header or footer shrink back animation duration
+     * @param duration duration in milli seconds
+     */
+    public void setShrinkBackAnimDuration(long duration){
+        if(duration < 0){
+            duration = 0;
+        }
+        mBackAnimDuration = duration;
+    }
+
+    /**
+     * Whether to enable pull to refresh. <br/>
+     * This is normally used to enable/disable fresh at runtime. Be sure that you called setFooterView() first!
+     * @param enable true to enable; false otherwise
+     */
+    public void setEnableRefresh(boolean enable){
+        mEnableRefresh = enable;
+    }
+
+    /**
+     * Whether to enable pull to load. <br/>
+     * This is normally used to enable/disable load at runtime. Be sure that you called setHeaderView() first!
+     * @param enable true to enable; false otherwise
+     */
+    public void setEnableLoadMore(boolean enable){
+        mEnableLoadMore = enable;
     }
 
     /**
