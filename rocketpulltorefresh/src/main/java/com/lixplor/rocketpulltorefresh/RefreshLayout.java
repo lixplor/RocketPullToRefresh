@@ -135,6 +135,14 @@ public class RefreshLayout extends LinearLayout {
      * Whether to enable pull up to load more
      */
     private boolean mEnableLoadMore = false;
+    /**
+     * Pull distance of header limitation
+     */
+    private float mHeaderPullDistanceLimit = 1.5f;
+    /**
+     * Pull distance of footer limitation
+     */
+    private float mFooterPullDistanceLimit = 1.5f;
 
 
     public RefreshLayout(Context context) {
@@ -176,67 +184,110 @@ public class RefreshLayout extends LinearLayout {
                 float moveRawX = event.getRawX();
                 float moveRawY = event.getRawY();
                 float dy = moveRawY - mLastTouchRawY;
+                float scrollY = getScrollY();
 
                 // move entire layout to display header or footer
-                scrollBy(0, (int) (-dy * mPullResistor));
+                scrollWithLimit(dy, scrollY);
 
-                if (getScrollY() < 0) {
-                    // evaluate if head appears fully, then change to release mode
-                    float outHeight = getY() - getScrollY();
-                    float percent = outHeight / mHeaderHeight;
-                    if (mOnPullListener != null) {
-                        mOnPullListener.onPullDown(moveRawX, moveRawY, percent);
-                    }
-
-                    if (outHeight >= mHeaderHeight && mCurrentState != STATE_RELEASE_TO_REFRESH) {
-                        mCurrentState = STATE_RELEASE_TO_REFRESH;
-                        mAbsHeader.changeToRelease();
-                    } else if (outHeight < mHeaderHeight && mCurrentState != STATE_PULL_DOWN_TO_REFRESH) {
-                        mCurrentState = STATE_PULL_DOWN_TO_REFRESH;
-                        mAbsHeader.changeToPullDown();
-                    }
-                } else {
-                    // evaluate if foot appears fully, then change to release mode
-                    float outHeight = getScrollY() - getY();
-                    float percent = outHeight / mFooterHeight;
-                    if (mOnPullListener != null) {
-                        mOnPullListener.onPullUp(moveRawX, moveRawY, percent);
-                    }
-
-                    if (outHeight >= mFooterHeight && mCurrentState != STATE_RELEASE_TO_LOAD) {
-                        mCurrentState = STATE_RELEASE_TO_LOAD;
-                        mAbsFooter.changeToRelease();
-                    } else if (outHeight < mFooterHeight && mCurrentState != STATE_PULL_UP_TO_LOAD) {
-                        mCurrentState = STATE_PULL_UP_TO_LOAD;
-                        mAbsFooter.changeToPullUp();
-                    }
+                if (scrollY < 0) {
+                    performScrollDown(scrollY, moveRawX, moveRawY);
+                } else if(scrollY > 0) {
+                    performScrollUp(scrollY, moveRawX, moveRawY);
                 }
                 mLastTouchRawY = moveRawY;
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                if (mCurrentState == STATE_PULL_DOWN_TO_REFRESH) {
-                    finishRefresh();
-                } else if (mCurrentState == STATE_RELEASE_TO_REFRESH) {
-                    mCurrentState = STATE_REFRESHING;
-                    mAbsHeader.changeToRefreshing();
-                    if (mOnStateChangedListener != null) {
-                        mOnStateChangedListener.onRefresh();
-                        animHeader(getScrollY(), -mHeaderHeight);
-                    }
-                } else if (mCurrentState == STATE_PULL_UP_TO_LOAD) {
-                    finishLoad();
-                } else if (mCurrentState == STATE_RELEASE_TO_LOAD) {
-                    mCurrentState = STATE_LOADING;
-                    mAbsFooter.changeToLoading();
-                    if (mOnStateChangedListener != null) {
-                        mOnStateChangedListener.onLoad();
-                        animFooter(getScrollY(), mFooterHeight);
-                    }
-                }
+                performTouchFinish();
                 break;
         }
         return true;
+    }
+
+    /**
+     * Scroll with evaluation if reach the limit
+     * @param dy change of move Y
+     * @param scrollY scroll Y
+     */
+    private void scrollWithLimit(float dy, float scrollY){
+        // move entire layout to display header or footer
+        int targetScrollY = (int) (-dy * mPullResistor + scrollY);
+        boolean isReachLimit = mHeaderPullDistanceLimit > 1f && -targetScrollY > mHeaderPullDistanceLimit * mHeaderHeight
+                || mFooterPullDistanceLimit > 1f && targetScrollY > mFooterPullDistanceLimit * mFooterHeight;
+        if(!isReachLimit){
+            scrollTo(0, targetScrollY);
+        }
+    }
+
+    /**
+     * Perform scroll down logic
+     * @param scrollY scroll Y
+     * @param moveRawX move raw X
+     * @param moveRawY move raw Y
+     */
+    private void performScrollDown(float scrollY, float moveRawX, float moveRawY){
+        // evaluate if head appears fully, then change to release mode
+        float outHeight = getY() - scrollY;
+        float outPercent = outHeight / mHeaderHeight;
+        if (mOnPullListener != null) {
+            mOnPullListener.onPullDown(moveRawX, moveRawY, outPercent);
+        }
+
+        if (outHeight >= mHeaderHeight && mCurrentState != STATE_RELEASE_TO_REFRESH) {
+            mCurrentState = STATE_RELEASE_TO_REFRESH;
+            mAbsHeader.changeToRelease();
+        } else if (outHeight < mHeaderHeight && mCurrentState != STATE_PULL_DOWN_TO_REFRESH) {
+            mCurrentState = STATE_PULL_DOWN_TO_REFRESH;
+            mAbsHeader.changeToPullDown();
+        }
+    }
+
+    /**
+     * Perform scroll up logic
+     * @param scrollY scroll Y
+     * @param moveRawX move raw X
+     * @param moveRawY move raw Y
+     */
+    private void performScrollUp(float scrollY, float moveRawX, float moveRawY){
+        // evaluate if foot appears fully, then change to release mode
+        float outHeight = scrollY - getY();
+        float outPercent = outHeight / mFooterHeight;
+        if (mOnPullListener != null) {
+            mOnPullListener.onPullUp(moveRawX, moveRawY, outPercent);
+        }
+
+        if (outHeight >= mFooterHeight && mCurrentState != STATE_RELEASE_TO_LOAD) {
+            mCurrentState = STATE_RELEASE_TO_LOAD;
+            mAbsFooter.changeToRelease();
+        } else if (outHeight < mFooterHeight && mCurrentState != STATE_PULL_UP_TO_LOAD) {
+            mCurrentState = STATE_PULL_UP_TO_LOAD;
+            mAbsFooter.changeToPullUp();
+        }
+    }
+
+    /**
+     * Perform touch finish logic
+     */
+    private void performTouchFinish(){
+        if (mCurrentState == STATE_PULL_DOWN_TO_REFRESH) {
+            finishRefresh();
+        } else if (mCurrentState == STATE_RELEASE_TO_REFRESH) {
+            mCurrentState = STATE_REFRESHING;
+            mAbsHeader.changeToRefreshing();
+            if (mOnStateChangedListener != null) {
+                mOnStateChangedListener.onRefresh();
+                animHeader(getScrollY(), -mHeaderHeight);
+            }
+        } else if (mCurrentState == STATE_PULL_UP_TO_LOAD) {
+            finishLoad();
+        } else if (mCurrentState == STATE_RELEASE_TO_LOAD) {
+            mCurrentState = STATE_LOADING;
+            mAbsFooter.changeToLoading();
+            if (mOnStateChangedListener != null) {
+                mOnStateChangedListener.onLoad();
+                animFooter(getScrollY(), mFooterHeight);
+            }
+        }
     }
 
     /**
@@ -430,6 +481,28 @@ public class RefreshLayout extends LinearLayout {
      */
     public void setEnableLoadMore(boolean enable){
         mEnableLoadMore = enable;
+    }
+
+    /**
+     * Set pull distance of header limitation
+     * @param percent percent of header height
+     */
+    public void setHeaderPullDistanceLimit(float percent){
+        if(percent < 1f){
+            percent = 1f;
+        }
+        mHeaderPullDistanceLimit = percent;
+    }
+
+    /**
+     * Set pull distance of footer limitation
+     * @param percent percent of footer height
+     */
+    public void setFooterPullDistanceLimit(float percent){
+        if(percent < 1f){
+            percent = 1f;
+        }
+        mFooterPullDistanceLimit = percent;
     }
 
     /**
