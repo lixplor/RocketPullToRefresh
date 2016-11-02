@@ -47,46 +47,94 @@ public class RefreshLayout extends LinearLayout {
     public static final int STATE_LOADING = -3;
     public static final int STATE_LOAD_FINISH = -4;
 
+    private Context mContext;
+
+    /**
+     * Touch tolerance of system
+     */
     private int mTouchSlop = ViewConfiguration.get(this.getContext()).getScaledTouchSlop();
+    /**
+     * Current pulling state
+     */
+    private int mCurrentState = STATE_NORMAL;
+    /**
+     * Callback when pulling state changed
+     */
+    private OnStateChangedListener mOnStateChangedListener;
+    /**
+     * Callback when pulling distance changed
+     */
+    private OnPullListener mOnPullListener;
+    /**
+     * View that shows content
+     */
+    private View mContentView;
+    /**
+     * Header view which can be pull down
+     */
+    private View mHeaderView;
+    /**
+     * Footer view which can be pull up
+     */
+    private View mFooterView;
+    /**
+     * Header abstract class
+     */
+    private AbsHeader mAbsHeader;
+    /**
+     * Footer abstract class
+     */
+    private AbsFooter mAbsFooter;
+    /**
+     * Height of header view
+     */
+    private int mHeaderHeight;
+    /**
+     * Height of footer view
+     */
+    private int mFooterHeight;
+    /**
+     * Raw Y px in the last touch event
+     */
+    private float mLastTouchRawY;
+    /**
+     * Raw Y px of touch down event
+     */
+    private float mDownRawY;
+    /**
+     * Y px in touch down event of onInterceptTouchEvent
+     */
+    private float mInterceptDownY;
+    /**
+     * Y px in touch move event of onInterceptTouchEvent
+     */
+    private float mInterceptMoveY;
+    /**
+     * Shrink back animation of header view
+     */
+    private ValueAnimator mHeaderBackAnimator;
+    /**
+     * Shrink back animation of footer view
+     */
+    private ValueAnimator mFooterBackAnimator;
 
     // configs
+    /**
+     * Pulling resistor. 1f means same speed as touch movement; <1f means slower; >1f means faster
+     */
     private float mPullResistor = 0.7f;
+    /**
+     * Shrink back animation duration
+     */
     private long mBackAnimDuration = 200;
+    /**
+     * Whether to enable pull down to refresh
+     */
     private boolean mEnableRefresh = true;
+    /**
+     * Whether to enable pull up to load more
+     */
     private boolean mEnableLoadMore = false;
-
-
-    private OnStateChangedListener mOnStateChangedListener;
-    private OnPullListener mOnPullListener;
-
-
-    private Context mContext;
-    private AttributeSet mAttributeSet;
-
-    private FrameLayout mHeaderContainer;
-    private FrameLayout mFooterContainer;
-    private View mContentView;
-    private View mHeaderView;
-    private View mFooterView;
-
-
-    private AbsHeader mAbsHeader;
-    private AbsFooter mAbsFooter;
-
-
-    private int mCurrentState = STATE_NORMAL;
-
-    private float mLastTouchRawY;
-    private float mDownRawY;
-
-    private float mInterceptDownY;
-    private float mInterceptMoveY;
-
-    private int mHeaderHeight;
-    private int mFooterHeight;
-
-    private ValueAnimator mHeaderBackAnimator;
-    private ValueAnimator mFooterBackAnimator;
 
 
     public RefreshLayout(Context context) {
@@ -115,37 +163,6 @@ public class RefreshLayout extends LinearLayout {
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         return shouldInterceptTouchEvent(ev, mContentView);
-    }
-
-    private boolean shouldInterceptTouchEvent(MotionEvent ev, View contentView) {
-        boolean shouldIntercept;
-        switch (ev.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-            case MotionEvent.ACTION_POINTER_DOWN:
-                mInterceptDownY = ev.getRawY();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                mInterceptMoveY = ev.getRawY();
-                mLastTouchRawY = mInterceptMoveY;
-                if (Math.abs(mInterceptMoveY - mInterceptDownY) > mTouchSlop) {
-                    if (mInterceptMoveY - mInterceptDownY > 0) {
-                        // pull down, evaluate if content view is at top
-                        shouldIntercept = !ViewCompat.canScrollVertically(contentView, -1);
-                        return shouldIntercept;
-                    } else {
-                        // pull up, evaluate if content view is at bottom
-                        shouldIntercept = !ViewCompat.canScrollVertically(contentView, 1);
-                        return shouldIntercept;
-                    }
-                }
-
-                break;
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                break;
-        }
-
-        return super.onInterceptTouchEvent(ev);
     }
 
     @Override
@@ -222,18 +239,86 @@ public class RefreshLayout extends LinearLayout {
         return true;
     }
 
-    public void finishRefresh() {
-        mCurrentState = STATE_REFRESH_FINISH;
-        mAbsHeader.changeToFinish();
-        animHeader(getScrollY(), 0);
+    /**
+     * Init of view
+     * @param context Context
+     * @param attrs AttributeSet
+     */
+    private void init(Context context, AttributeSet attrs) {
+        mContext = context;
+        setOrientation(LinearLayout.VERTICAL);
     }
 
-    public void finishLoad() {
-        mCurrentState = STATE_LOAD_FINISH;
-        mAbsFooter.changeToFinish();
-        animFooter(getScrollY(), 0);
+    /**
+     * Init header container view
+     */
+    private void initHeaderContainer() {
+        FrameLayout headerContainer = new FrameLayout(mContext);
+        LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        params.width = LayoutParams.MATCH_PARENT;
+        params.height = LayoutParams.WRAP_CONTENT;
+        mHeaderView.measure(0, 0);
+        mHeaderHeight = mHeaderView.getMeasuredHeight();
+        params.topMargin = -mHeaderHeight;
+        headerContainer.addView(mHeaderView);
+        addView(headerContainer, 0, params);
     }
 
+    /**
+     * Init footer container view
+     */
+    private void initFooterContainer() {
+        FrameLayout footerContainer = new FrameLayout(mContext);
+        LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        params.width = LayoutParams.MATCH_PARENT;
+        params.height = LayoutParams.WRAP_CONTENT;
+        mFooterView.measure(0, 0);
+        mFooterHeight = mFooterView.getMeasuredHeight();
+        params.bottomMargin = -mFooterHeight;
+        footerContainer.addView(mFooterView);
+        addView(footerContainer, params);
+    }
+
+    /**
+     * Evaluate if this should intercept touch event to enable pull actions
+     * @param ev MotionEvent
+     * @param contentView content view to help evaluate
+     * @return true if intercepts; false otherwise
+     */
+    private boolean shouldInterceptTouchEvent(MotionEvent ev, View contentView) {
+        boolean shouldIntercept;
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_POINTER_DOWN:
+                mInterceptDownY = ev.getRawY();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                mInterceptMoveY = ev.getRawY();
+                mLastTouchRawY = mInterceptMoveY;
+                if (Math.abs(mInterceptMoveY - mInterceptDownY) > mTouchSlop) {
+                    if (mInterceptMoveY - mInterceptDownY > 0) {
+                        // pull down, evaluate if content view is at top
+                        shouldIntercept = !ViewCompat.canScrollVertically(contentView, -1);
+                        return shouldIntercept;
+                    } else {
+                        // pull up, evaluate if content view is at bottom
+                        shouldIntercept = !ViewCompat.canScrollVertically(contentView, 1);
+                        return shouldIntercept;
+                    }
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                break;
+        }
+        return super.onInterceptTouchEvent(ev);
+    }
+
+    /**
+     * Perform header view shrink back animation
+     * @param from animation start Y px
+     * @param to animation stop Y px
+     */
     private void animHeader(int from, final int to) {
         if (mHeaderBackAnimator == null) {
             mHeaderBackAnimator = new ValueAnimator();
@@ -256,6 +341,11 @@ public class RefreshLayout extends LinearLayout {
         mHeaderBackAnimator.start();
     }
 
+    /**
+     * Perform footer view shrink back animation
+     * @param from animation start Y px
+     * @param to animation stop Y px
+     */
     private void animFooter(int from, int to) {
         if (mFooterBackAnimator == null) {
             mFooterBackAnimator = new ValueAnimator();
@@ -278,56 +368,10 @@ public class RefreshLayout extends LinearLayout {
         mFooterBackAnimator.start();
     }
 
-    private void init(Context context, AttributeSet attrs) {
-        mContext = context;
-        mAttributeSet = attrs;
-        setOrientation(LinearLayout.VERTICAL);
-    }
-
-    private void initHeaderContainer() {
-        mHeaderContainer = new FrameLayout(mContext);
-        LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-        params.width = LayoutParams.MATCH_PARENT;
-        params.height = LayoutParams.WRAP_CONTENT;
-        mHeaderView.measure(0, 0);
-        mHeaderHeight = mHeaderView.getMeasuredHeight();
-        params.topMargin = -mHeaderHeight;
-        mHeaderContainer.addView(mHeaderView);
-        addView(mHeaderContainer, 0, params);
-    }
-
-    private void initFooterContainer() {
-        mFooterContainer = new FrameLayout(mContext);
-        LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-        params.width = LayoutParams.MATCH_PARENT;
-        params.height = LayoutParams.WRAP_CONTENT;
-        mFooterView.measure(0, 0);
-        mFooterHeight = mFooterView.getMeasuredHeight();
-        params.bottomMargin = -mFooterHeight;
-        mFooterContainer.addView(mFooterView);
-        addView(mFooterContainer, params);
-    }
-
-    public void setOnStateChangedListener(OnStateChangedListener onStateChangedListener) {
-        mOnStateChangedListener = onStateChangedListener;
-    }
-
-    public interface OnStateChangedListener {
-        void onRefresh();
-
-        void onLoad();
-    }
-
-    public void setOnPullListener(OnPullListener onPullListener) {
-        mOnPullListener = onPullListener;
-    }
-
-    public interface OnPullListener {
-        void onPullDown(float touchX, float touchY, float percent);
-
-        void onPullUp(float touchX, float touchY, float percent);
-    }
-
+    /**
+     * Set custom header view
+     * @param header class that extends from AbsHeader
+     */
     public void setHeaderView(AbsHeader header) {
         mAbsHeader = header;
         if (mAbsHeader instanceof OnPullListener) {
@@ -337,9 +381,82 @@ public class RefreshLayout extends LinearLayout {
         initHeaderContainer();
     }
 
+    /**
+     * Set custom footer view
+     * @param footer class that extends from AbsFooter
+     */
     public void setFooterView(AbsFooter footer) {
         mAbsFooter = footer;
         mFooterView = mAbsFooter.getFooter();
         initFooterContainer();
+    }
+
+    /**
+     * Call this when you have finished refreshing. This will shrink back header with animation
+     */
+    public void finishRefresh() {
+        mCurrentState = STATE_REFRESH_FINISH;
+        mAbsHeader.changeToFinish();
+        animHeader(getScrollY(), 0);
+    }
+
+    /**
+     * Call this when you have finished loading. This will shrink back footer view with animation
+     */
+    public void finishLoad() {
+        mCurrentState = STATE_LOAD_FINISH;
+        mAbsFooter.changeToFinish();
+        animFooter(getScrollY(), 0);
+    }
+
+    /**
+     * Set a listener to listen pulling distance changes
+     * @param onPullListener OnPullListener
+     */
+    public void setOnPullListener(OnPullListener onPullListener) {
+        mOnPullListener = onPullListener;
+    }
+
+    /**
+     * Set a listener to listen to pull state change.
+     * @param onStateChangedListener OnStateChangedListener
+     */
+    public void setOnStateChangedListener(OnStateChangedListener onStateChangedListener) {
+        mOnStateChangedListener = onStateChangedListener;
+    }
+
+    /**
+     * Listener that callbacks pull state
+     */
+    public interface OnStateChangedListener {
+        /**
+         * Called when header state changes to refreshing
+         */
+        void onRefresh();
+
+        /**
+         * Called when footer state changes to loading
+         */
+        void onLoad();
+    }
+
+    /**
+     * Listener to listen pulling distance changes
+     */
+    public interface OnPullListener {
+        /**
+         * Called when header pull down distance changes
+         * @param touchX touch X position
+         * @param touchY touch Y position
+         * @param percent percent of appearence of header
+         */
+        void onPullDown(float touchX, float touchY, float percent);
+        /**
+         * Called when footer pull up distance changes
+         * @param touchX touch X position
+         * @param touchY touch Y position
+         * @param percent percent of appearence of footer
+         */
+        void onPullUp(float touchX, float touchY, float percent);
     }
 }
