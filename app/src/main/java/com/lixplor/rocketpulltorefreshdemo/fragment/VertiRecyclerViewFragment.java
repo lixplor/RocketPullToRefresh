@@ -20,7 +20,6 @@ import android.support.v7.widget.RecyclerView;
 
 import com.lixplor.rocketpulltorefresh.RefreshLayout;
 import com.lixplor.rocketpulltorefresh.footer.plain.PlainFooter;
-import com.lixplor.rocketpulltorefresh.header.plain.PlainHeader;
 import com.lixplor.rocketpulltorefresh.header.rocket.RocketHeader;
 import com.lixplor.rocketpulltorefreshdemo.R;
 import com.lixplor.rocketpulltorefreshdemo.adapter.RecyclerAdapter;
@@ -68,7 +67,7 @@ public class VertiRecyclerViewFragment extends BaseFragment {
     private void initRefreshLayout() {
         mRefreshLayout.setHeaderView(new RocketHeader(getContext()));
         mRefreshLayout.setFooterView(new PlainFooter(getContext()));
-        mRefreshLayout.setOnStateListener(new RefreshLayout.OnStateListener() {
+        mRefreshLayout.setOnStateChangedListener(new RefreshLayout.OnStateChangedListener() {
             @Override
             public void onRefresh() {
                 MockUtil.getData(0, mLimit, new MockUtil.OnGetDataFinishCallback() {

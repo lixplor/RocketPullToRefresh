@@ -68,7 +68,7 @@ public class StaggerRecyclerViewFragment extends BaseFragment {
     private void initRefreshLayout() {
         mRefreshLayout.setHeaderView(new PlainHeader(getContext()));
         mRefreshLayout.setFooterView(new PlainFooter(getContext()));
-        mRefreshLayout.setOnStateListener(new RefreshLayout.OnStateListener() {
+        mRefreshLayout.setOnStateChangedListener(new RefreshLayout.OnStateChangedListener() {
             @Override
             public void onRefresh() {
                 MockUtil.getData(0, mLimit, new MockUtil.OnGetDataFinishCallback() {

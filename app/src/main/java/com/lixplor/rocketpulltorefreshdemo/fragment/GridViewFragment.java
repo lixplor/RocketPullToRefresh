@@ -15,15 +15,12 @@
 
 package com.lixplor.rocketpulltorefreshdemo.fragment;
 
-import android.os.SystemClock;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.GridView;
 
 import com.lixplor.rocketpulltorefresh.RefreshLayout;
 import com.lixplor.rocketpulltorefresh.footer.plain.PlainFooter;
-import com.lixplor.rocketpulltorefresh.header.plain.PlainHeader;
 import com.lixplor.rocketpulltorefresh.header.rocket.RocketHeader;
 import com.lixplor.rocketpulltorefreshdemo.R;
 import com.lixplor.rocketpulltorefreshdemo.adapter.ListAdapter;
@@ -75,7 +72,7 @@ public class GridViewFragment extends BaseFragment {
     private void initRefreshLayout() {
         mRefreshLayout.setHeaderView(new RocketHeader(getContext()));
         mRefreshLayout.setFooterView(new PlainFooter(getContext()));
-        mRefreshLayout.setOnStateListener(new RefreshLayout.OnStateListener() {
+        mRefreshLayout.setOnStateChangedListener(new RefreshLayout.OnStateChangedListener() {
             @Override
             public void onRefresh() {
                 MockUtil.getData(0, mLimit, new MockUtil.OnGetDataFinishCallback() {

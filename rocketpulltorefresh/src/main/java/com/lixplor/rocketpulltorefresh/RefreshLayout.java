@@ -56,7 +56,7 @@ public class RefreshLayout extends LinearLayout {
     private boolean mEnableLoadMore = false;
 
 
-    private OnStateListener mOnStateListener;
+    private OnStateChangedListener mOnStateChangedListener;
     private OnPullListener mOnPullListener;
 
 
@@ -203,8 +203,8 @@ public class RefreshLayout extends LinearLayout {
                 } else if (mCurrentState == STATE_RELEASE_TO_REFRESH) {
                     mCurrentState = STATE_REFRESHING;
                     mAbsHeader.changeToRefreshing();
-                    if (mOnStateListener != null) {
-                        mOnStateListener.onRefresh();
+                    if (mOnStateChangedListener != null) {
+                        mOnStateChangedListener.onRefresh();
                         animHeader(getScrollY(), -mHeaderHeight);
                     }
                 } else if (mCurrentState == STATE_PULL_UP_TO_LOAD) {
@@ -212,8 +212,8 @@ public class RefreshLayout extends LinearLayout {
                 } else if (mCurrentState == STATE_RELEASE_TO_LOAD) {
                     mCurrentState = STATE_LOADING;
                     mAbsFooter.changeToLoading();
-                    if (mOnStateListener != null) {
-                        mOnStateListener.onLoad();
+                    if (mOnStateChangedListener != null) {
+                        mOnStateChangedListener.onLoad();
                         animFooter(getScrollY(), mFooterHeight);
                     }
                 }
@@ -308,11 +308,11 @@ public class RefreshLayout extends LinearLayout {
         addView(mFooterContainer, params);
     }
 
-    public void setOnStateListener(OnStateListener onStateListener) {
-        mOnStateListener = onStateListener;
+    public void setOnStateChangedListener(OnStateChangedListener onStateChangedListener) {
+        mOnStateChangedListener = onStateChangedListener;
     }
 
-    public interface OnStateListener {
+    public interface OnStateChangedListener {
         void onRefresh();
 
         void onLoad();
